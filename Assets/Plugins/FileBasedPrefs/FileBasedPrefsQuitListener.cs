@@ -1,34 +1,36 @@
 ﻿using UnityEngine;
 
-public class FileBasedPrefsQuitListener : MonoBehaviour {
-
-    public static FileBasedPrefsQuitListener Instance;
-
-    private void Awake()
+namespace Plugins.FileBasedPrefs
+{
+    public class FileBasedPrefsQuitListener : MonoBehaviour
     {
-        if(Instance != null)
+        public static FileBasedPrefsQuitListener Instance;
+
+        private void Awake()
         {
-            Destroy(gameObject);
-            return;
+            if (Instance != null)
+            {
+                Destroy(gameObject);
+                return;
+            }
+
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
         }
-        Instance = this;
-        DontDestroyOnLoad(gameObject);
+
+        private void OnApplicationFocus(bool hasFocus)
+        {
+            FileBasedPrefs.ManuallySave();
+        }
+
+        private void OnApplicationPause(bool pauseStatus)
+        {
+            FileBasedPrefs.ManuallySave();
+        }
+
+        private void OnApplicationQuit()
+        {
+            FileBasedPrefs.ManuallySave();
+        }
     }
-
-    private void OnApplicationQuit()
-    {
-        FileBasedPrefs.ManualySave();
-    }
-
-    void OnApplicationFocus(bool hasFocus)
-    {
-        FileBasedPrefs.ManualySave();
-    }
-
-    void OnApplicationPause(bool pauseStatus)
-    {
-        FileBasedPrefs.ManualySave();
-    }
-
-
 }

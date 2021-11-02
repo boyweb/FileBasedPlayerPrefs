@@ -1,367 +1,314 @@
 ﻿using System;
 using System.Linq;
 
-
-[Serializable]
-public class FileBasedPrefsSaveFileModel
+namespace Plugins.FileBasedPrefs
 {
-    public StringItem[] StringData = new StringItem[0];
-    public IntItem[] IntData = new IntItem[0];
-    public FloatItem[] FloatData = new FloatItem[0];
-    public BoolItem[] BoolData = new BoolItem[0];
-
     [Serializable]
-    public class StringItem
+    public class FileBasedPrefsSaveFileModel
     {
-        public string Key;
-        public string Value;
+        public StringItem[] stringData = Array.Empty<StringItem>();
+        public IntItem[] intData = Array.Empty<IntItem>();
+        public FloatItem[] floatData = Array.Empty<FloatItem>();
+        public BoolItem[] boolData = Array.Empty<BoolItem>();
 
-        public StringItem(string K, string V)
+        public object GetValueFromKey(string key, object defaultValue)
         {
-            Key = K;
-            Value = V;
-        }
-    }
-
-    [Serializable]
-    public class IntItem
-    {
-        public string Key;
-        public int Value;
-
-        public IntItem(string K, int V)
-        {
-            Key = K;
-            Value = V;
-        }
-    }
-
-    [Serializable]
-    public class FloatItem
-    {
-        public string Key;
-        public float Value;
-
-        public FloatItem(string K, float V)
-        {
-            Key = K;
-            Value = V;
-        }
-    }
-
-    [Serializable]
-    public class BoolItem
-    {
-        public string Key;
-        public bool Value;
-
-        public BoolItem(string K, bool V)
-        {
-            Key = K;
-            Value = V;
-        }
-    }
-
-    public object GetValueFromKey(string key, object defaultValue)
-    {
-        if (defaultValue is string)
-        {
-            for (int i = 0; i < StringData.Length; i++)
+            switch (defaultValue)
             {
-                if (StringData[i].Key.Equals(key))
+                case string:
                 {
-                    return StringData[i].Value;
+                    foreach (var item in stringData)
+                        if (item.key.Equals(key))
+                            return item.value;
+
+                    break;
+                }
+                case int:
+                {
+                    foreach (var item in intData)
+                        if (item.key.Equals(key))
+                            return item.value;
+
+                    break;
+                }
+                case float:
+                {
+                    foreach (var item in floatData)
+                        if (item.key.Equals(key))
+                            return item.value;
+
+                    break;
+                }
+                case bool:
+                {
+                    foreach (var item in boolData)
+                        if (item.key.Equals(key))
+                            return item.value;
+
+                    break;
                 }
             }
-        }
-        if (defaultValue is int)
-        {
-            for (int i = 0; i < IntData.Length; i++)
-            {
-                if (IntData[i].Key.Equals(key))
-                {
-                    return IntData[i].Value;
-                }
-            }
-        }
-        if (defaultValue is float)
-        {
-            for (int i = 0; i < FloatData.Length; i++)
-            {
-                if (FloatData[i].Key.Equals(key))
-                {
-                    return FloatData[i].Value;
-                }
-            }
-        }
-        if (defaultValue is bool)
-        {
-            for (int i = 0; i < BoolData.Length; i++)
-            {
-                if (BoolData[i].Key.Equals(key))
-                {
-                    return BoolData[i].Value;
-                }
-            }
-        }
-        return defaultValue;
-    }
 
-    public void UpdateOrAddData(string key, object value)
-    {
-        if (HasKeyFromObject(key, value))
-        {
-            SetValueForExistingKey(key, value);
+            return defaultValue;
         }
-        else
-        {
-            SetValueForNewKey(key, value);
-        }
-    }
 
-    private void SetValueForNewKey(string key, object value)
-    {
-        if (value is string)
+        public void UpdateOrAddData(string key, object value)
         {
-            var dataAsList = StringData.ToList();
-            dataAsList.Add(new StringItem(key, (string) value));
-            StringData = dataAsList.ToArray();
+            if (HasKeyFromObject(key, value))
+                SetValueForExistingKey(key, value);
+            else
+                SetValueForNewKey(key, value);
         }
-        if (value is int)
-        {
-            var dataAsList = IntData.ToList();
-            dataAsList.Add(new IntItem(key, (int) value));
-            IntData = dataAsList.ToArray();
-        }
-        if (value is float)
-        {
-            var dataAsList = FloatData.ToList();
-            dataAsList.Add(new FloatItem(key, (float) value));
-            FloatData = dataAsList.ToArray();
-        }
-        if (value is bool)
-        {
-            var dataAsList = BoolData.ToList();
-            dataAsList.Add(new BoolItem(key, (bool) value));
-            BoolData = dataAsList.ToArray();
-        }
-    }
 
-    private void SetValueForExistingKey(string key, object value)
-    {
-        if (value is string)
+        private void SetValueForNewKey(string key, object value)
         {
-            for (int i = 0; i < StringData.Length; i++)
+            switch (value)
             {
-                if (StringData[i].Key.Equals(key))
+                case string s:
                 {
-                    StringData[i].Value = (string) value;
+                    var dataAsList = stringData.ToList();
+                    dataAsList.Add(new StringItem(key, s));
+                    stringData = dataAsList.ToArray();
+                    break;
                 }
-            }
-        }
-        if (value is int)
-        {
-            for (int i = 0; i < IntData.Length; i++)
-            {
-                if (IntData[i].Key.Equals(key))
+                case int i:
                 {
-                    IntData[i].Value = (int) value;
+                    var dataAsList = intData.ToList();
+                    dataAsList.Add(new IntItem(key, i));
+                    intData = dataAsList.ToArray();
+                    break;
                 }
-            }
-        }
-        if (value is float)
-        {
-            for (int i = 0; i < FloatData.Length; i++)
-            {
-                if (FloatData[i].Key.Equals(key))
+                case float f:
                 {
-                    FloatData[i].Value = (float) value;
+                    var dataAsList = floatData.ToList();
+                    dataAsList.Add(new FloatItem(key, f));
+                    floatData = dataAsList.ToArray();
+                    break;
                 }
-            }
-        }
-        if (value is bool)
-        {
-            for (int i = 0; i < BoolData.Length; i++)
-            {
-                if (BoolData[i].Key.Equals(key))
+                case bool b:
                 {
-                    BoolData[i].Value = (bool) value;
-                }
-            }
-        }
-    }
-
-    public bool HasKeyFromObject(string key, object value)
-    {
-        if (value is string)
-        {
-            for (int i = 0; i < StringData.Length; i++)
-            {
-                if (StringData[i].Key.Equals(key))
-                {
-                    return true;
+                    var dataAsList = boolData.ToList();
+                    dataAsList.Add(new BoolItem(key, b));
+                    boolData = dataAsList.ToArray();
+                    break;
                 }
             }
         }
 
-        if (value is int)
+        private void SetValueForExistingKey(string key, object value)
         {
-            for (int i = 0; i < IntData.Length; i++)
+            switch (value)
             {
-                if (IntData[i].Key.Equals(key))
+                case string s:
                 {
-                    return true;
+                    foreach (var item in stringData)
+                        if (item.key.Equals(key))
+                            item.value = s;
+
+                    break;
+                }
+                case int i:
+                {
+                    foreach (var item in intData)
+                        if (item.key.Equals(key))
+                            item.value = i;
+
+                    break;
+                }
+                case float f:
+                {
+                    foreach (var item in floatData)
+                        if (item.key.Equals(key))
+                            item.value = f;
+
+                    break;
+                }
+                case bool b:
+                {
+                    foreach (var item in boolData)
+                        if (item.key.Equals(key))
+                            item.value = b;
+
+                    break;
                 }
             }
         }
 
-        if (value is float)
+        public bool HasKeyFromObject(string key, object value)
         {
-            for (int i = 0; i < FloatData.Length; i++)
+            switch (value)
             {
-                if (FloatData[i].Key.Equals(key))
+                case string:
                 {
-                    return true;
+                    if (stringData.Any(item => item.key.Equals(key))) return true;
+
+                    break;
+                }
+                case int:
+                {
+                    if (intData.Any(t => t.key.Equals(key))) return true;
+
+                    break;
+                }
+                case float:
+                {
+                    if (floatData.Any(t => t.key.Equals(key))) return true;
+
+                    break;
+                }
+                case bool:
+                {
+                    if (boolData.Any(t => t.key.Equals(key))) return true;
+
+                    break;
                 }
             }
+
+            return false;
         }
 
-        if (value is bool)
+        public void DeleteKey(string key)
         {
-            for (int i = 0; i < BoolData.Length; i++)
-            {
-                if (BoolData[i].Key.Equals(key))
+            for (var i = 0; i < stringData.Length; i++)
+                if (stringData[i].key.Equals(key))
                 {
-                    return true;
+                    var dataAsList = stringData.ToList();
+                    dataAsList.RemoveAt(i);
+                    stringData = dataAsList.ToArray();
                 }
+
+            for (var i = 0; i < intData.Length; i++)
+                if (intData[i].key.Equals(key))
+                {
+                    var dataAsList = intData.ToList();
+                    dataAsList.RemoveAt(i);
+                    intData = dataAsList.ToArray();
+                }
+
+            for (var i = 0; i < floatData.Length; i++)
+                if (floatData[i].key.Equals(key))
+                {
+                    var dataAsList = floatData.ToList();
+                    dataAsList.RemoveAt(i);
+                    floatData = dataAsList.ToArray();
+                }
+
+            for (var i = 0; i < boolData.Length; i++)
+                if (boolData[i].key.Equals(key))
+                {
+                    var dataAsList = boolData.ToList();
+                    dataAsList.RemoveAt(i);
+                    boolData = dataAsList.ToArray();
+                }
+        }
+
+        public void DeleteString(string key)
+        {
+            for (var i = 0; i < stringData.Length; i++)
+                if (stringData[i].key.Equals(key))
+                {
+                    var dataAsList = stringData.ToList();
+                    dataAsList.RemoveAt(i);
+                    stringData = dataAsList.ToArray();
+                }
+        }
+
+        public void DeleteInt(string key)
+        {
+            for (var i = 0; i < intData.Length; i++)
+                if (intData[i].key.Equals(key))
+                {
+                    var dataAsList = intData.ToList();
+                    dataAsList.RemoveAt(i);
+                    intData = dataAsList.ToArray();
+                }
+        }
+
+        public void DeleteFloat(string key)
+        {
+            for (var i = 0; i < floatData.Length; i++)
+                if (floatData[i].key.Equals(key))
+                {
+                    var dataAsList = floatData.ToList();
+                    dataAsList.RemoveAt(i);
+                    floatData = dataAsList.ToArray();
+                }
+        }
+
+        public void DeleteBool(string key)
+        {
+            for (var i = 0; i < boolData.Length; i++)
+                if (boolData[i].key.Equals(key))
+                {
+                    var dataAsList = boolData.ToList();
+                    dataAsList.RemoveAt(i);
+                    boolData = dataAsList.ToArray();
+                }
+        }
+
+        public bool HasKey(string key)
+        {
+            if (stringData.Any(t => t.key.Equals(key))) return true;
+
+            if (intData.Any(t => t.key.Equals(key))) return true;
+
+            if (floatData.Any(t => t.key.Equals(key))) return true;
+
+            if (boolData.Any(t => t.key.Equals(key))) return true;
+
+            return false;
+        }
+
+        [Serializable]
+        public class StringItem
+        {
+            public string key;
+            public string value;
+
+            public StringItem(string k, string v)
+            {
+                key = k;
+                value = v;
             }
         }
 
-        return false;
-    }
+        [Serializable]
+        public class IntItem
+        {
+            public string key;
+            public int value;
 
-    public void DeleteKey(string key)
-    {
-        for (int i = 0; i < StringData.Length; i++)
-        {
-            if (StringData[i].Key.Equals(key))
+            public IntItem(string k, int v)
             {
-                var dataAsList = StringData.ToList();
-                dataAsList.RemoveAt(i);
-                StringData = dataAsList.ToArray();
+                key = k;
+                value = v;
             }
         }
-        for (int i = 0; i < IntData.Length; i++)
-        {
-            if (IntData[i].Key.Equals(key))
-            {
-                var dataAsList = IntData.ToList();
-                dataAsList.RemoveAt(i);
-                IntData = dataAsList.ToArray();
-            }
-        }
-        for (int i = 0; i < FloatData.Length; i++)
-        {
-            if (FloatData[i].Key.Equals(key))
-            {
-                var dataAsList = FloatData.ToList();
-                dataAsList.RemoveAt(i);
-                FloatData = dataAsList.ToArray();
-            }
-        }
-        for (int i = 0; i < BoolData.Length; i++)
-        {
-            if (BoolData[i].Key.Equals(key))
-            {
-                var dataAsList = BoolData.ToList();
-                dataAsList.RemoveAt(i);
-                BoolData = dataAsList.ToArray();
-            }
-        }
-    }
 
-    public void DeleteString(string key)
-    {
-        for (int i = 0; i < StringData.Length; i++)
+        [Serializable]
+        public class FloatItem
         {
-            if (StringData[i].Key.Equals(key))
-            {
-                var dataAsList = StringData.ToList();
-                dataAsList.RemoveAt(i);
-                StringData = dataAsList.ToArray();
-            }
-        }
-    }
+            public string key;
+            public float value;
 
-    public void DeleteInt(string key)
-    {
-        for (int i = 0; i < IntData.Length; i++)
-        {
-            if (IntData[i].Key.Equals(key))
+            public FloatItem(string k, float v)
             {
-                var dataAsList = IntData.ToList();
-                dataAsList.RemoveAt(i);
-                IntData = dataAsList.ToArray();
+                key = k;
+                value = v;
             }
         }
-    }
 
-    public void DeleteFloat(string key)
-    {
-        for (int i = 0; i < FloatData.Length; i++)
+        [Serializable]
+        public class BoolItem
         {
-            if (FloatData[i].Key.Equals(key))
-            {
-                var dataAsList = FloatData.ToList();
-                dataAsList.RemoveAt(i);
-                FloatData = dataAsList.ToArray();
-            }
-        }
-    }
+            public string key;
+            public bool value;
 
-    public void DeleteBool(string key)
-    {
-        for (int i = 0; i < BoolData.Length; i++)
-        {
-            if (BoolData[i].Key.Equals(key))
+            public BoolItem(string k, bool v)
             {
-                var dataAsList = BoolData.ToList();
-                dataAsList.RemoveAt(i);
-                BoolData = dataAsList.ToArray();
+                key = k;
+                value = v;
             }
         }
-    }
-
-    public bool HasKey(string key)
-    {
-        for (int i = 0; i < StringData.Length; i++)
-        {
-            if (StringData[i].Key.Equals(key))
-            {
-                return true;
-            }
-        }
-        for (int i = 0; i < IntData.Length; i++)
-        {
-            if (IntData[i].Key.Equals(key))
-            {
-                return true;
-            }
-        }
-        for (int i = 0; i < FloatData.Length; i++)
-        {
-            if (FloatData[i].Key.Equals(key))
-            {
-                return true;
-            }
-        }
-        for (int i = 0; i < BoolData.Length; i++)
-        {
-            if (BoolData[i].Key.Equals(key))
-            {
-                return true;
-            }
-        }
-        return false;
     }
 }

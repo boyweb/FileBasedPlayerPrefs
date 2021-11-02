@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Plugins.FileBasedPrefs;
 using UnityEngine;
 
 public class Test : MonoBehaviour {
@@ -41,7 +42,7 @@ public class Test : MonoBehaviour {
         }
         if(Input.GetKeyDown(KeyCode.S))
         {
-            FileBasedPrefs.ManualySave();
+            FileBasedPrefs.ManuallySave();
         }
     }
 
